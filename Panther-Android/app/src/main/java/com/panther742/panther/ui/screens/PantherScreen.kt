@@ -541,7 +541,7 @@ private fun BubbleRow(bubble: Bubble) {
                         if (bubble.fromUser) {
                             Brush.linearGradient(listOf(Color(0xFF16D3EA), Violet))
                         } else {
-                            SlateGlass
+                            Brush.solidColor(SlateGlass)
                         },
                     )
                     .padding(horizontal = 14.dp, vertical = 10.dp),

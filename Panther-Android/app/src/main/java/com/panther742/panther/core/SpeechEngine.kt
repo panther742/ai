@@ -68,6 +68,10 @@ class SpeechEngine(
         onStatus("Sun raha hoon... 🎙️")
     }
 
+    override fun onEvent(eventType: Int, params: Bundle?) {
+        // Not used — required by RecognitionListener.
+    }
+
     override fun onBeginningOfSpeech() {}
     override fun onRmsChanged(rmsdB: Float) {}
     override fun onBufferReceived(buffer: ByteArray?) {}

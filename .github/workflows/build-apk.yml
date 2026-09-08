@@ -91,10 +91,10 @@ jobs:
         working-directory: Panther-Android
         run: |
           set -e
-          cp app/build/outputs/apk/debug/app-debug.apk /tmp/Panther-v1.0.apk
-          if gh release view v1.0 --repo "${{ github.repository }}" >/dev/null 2>&1; then
-            gh release upload v1.0 /tmp/Panther-v1.0.apk --repo "${{ github.repository }}" --clobber
+          cp app/build/outputs/apk/debug/app-debug.apk /tmp/Panther-v1.1.apk
+          if gh release view v1.1 --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release upload v1.1 /tmp/Panther-v1.1.apk --repo "${{ github.repository }}" --clobber
           else
-            gh release create v1.0 /tmp/Panther-v1.0.apk --repo "${{ github.repository }}" --title "Panther v1.0" --notes "Panther v1.0 debug APK - JARVIS-style Hinglish AI voice assistant for Android (sideload ready). Setup guide in Panther-Android/README.md."
+            gh release create v1.1 /tmp/Panther-v1.1.apk --repo "${{ github.repository }}" --title "Panther v1.1" --notes "Panther v1.1 debug APK - crash fix - JARVIS-style Hinglish AI voice assistant for Android (sideload ready). Setup guide in Panther-Android/README.md."
           fi
-          echo "Release URL: https://github.com/${{ github.repository }}/releases/tag/v1.0"
+          echo "Release URL: https://github.com/${{ github.repository }}/releases/tag/v1.1"

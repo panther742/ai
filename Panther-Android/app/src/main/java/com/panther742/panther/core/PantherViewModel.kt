@@ -23,13 +23,18 @@ class PantherViewModel(app: Application) : AndroidViewModel(app) {
 
     private val store = SettingsStore(app)
     private val clock = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
-    private val greetingText by lazy { greetingForHour() }
+
+    // IMPORTANT: settings must be initialised before greeting/_ui — greetingForHour()
+    // reads _settings.value, and _ui reads greetingText during construction.
+    private val _settings = MutableStateFlow(store.load())
+    val settings: StateFlow<PantherSettings> = _settings.asStateFlow()
+
+    private val greetingText: String by lazy {
+        runCatching { greetingForHour() }.getOrDefault("Namaste, Boss!")
+    }
 
     private val _ui = MutableStateFlow(PantherUiState(greeting = greetingText))
     val ui: StateFlow<PantherUiState> = _ui.asStateFlow()
-
-    private val _settings = MutableStateFlow(store.load())
-    val settings: StateFlow<PantherSettings> = _settings.asStateFlow()
 
     private var localBrain: LocalBrain? = null
     private lateinit var voice: VoiceBox
@@ -78,6 +83,15 @@ class PantherViewModel(app: Application) : AndroidViewModel(app) {
         return nb
     }
 
+    /** If the previous run crashed, surface the recorded error to the user. */
+    private fun showPreviousCrash() {
+        val app = getApplication<Application>()
+        val report = (app as? com.panther742.panther.PantherApplication)?.readCrashReport() ?: return
+        val firstLines = report.lineSequence().take(6).joinToString("\n")
+        val msg = "⚠️ Pichli baar app crash hua tha. Error: $firstLines"
+        addPantherBubble(msg)
+    }
+
     private fun markBackendState() {
         val s = _settings.value
         val usable = s.apiKey.isNotBlank() || s.provider == PantherSettings.PROVIDER_CUSTOM
@@ -87,6 +101,7 @@ class PantherViewModel(app: Application) : AndroidViewModel(app) {
     fun start() {
         ensureVoice()
         markBackendState()
+        showPreviousCrash()
         if (!welcomeShown) {
             welcomeShown = true
             viewModelScope.launch {

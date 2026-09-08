@@ -1,0 +1,20 @@
+# Standard Android / Gradle ignores for Panther-Android
+*.iml
+.gradle/
+.idea/
+.kotlin/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+build/
+app/build/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+*.log
+buck-out/
+.idea/**
+.navigation/

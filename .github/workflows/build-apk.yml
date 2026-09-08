@@ -44,15 +44,25 @@ jobs:
         working-directory: Panther-Android
         run: |
           python3 - <<'PYEOF'
-          import json, os
+          import json, os, re
           log = open('build.log', encoding='utf-8', errors='replace').read()
-          tail = log[-26000:]
+          lines = log.splitlines()
+          # Pull the actual compiler error lines (Kotlin "e: ...", unresolved refs, task failures)
+          err = []
+          for ln in lines:
+              if re.search(r'(^|\s)e:\s|error:|unresolved reference|Unresolved reference|Execution failed for task|FAILURE:|What went wrong|Caused by:|KotlinCompile.*FAILED', ln, re.IGNORECASE):
+                  err.append(ln)
+          err_block = "\n".join(err[-120:])
+          head = "\n".join(lines[:250])
+          tail = "\n".join(lines[-120:])
           body = (
-            f"Panther build failed in run {os.environ['GITHUB_RUN_ID']} "
-            f"(commit {os.environ['GITHUB_SHA'][:8]})\n\n"
-            f"```\n{tail}\n```"
+              f"Panther build failed in run {os.environ['GITHUB_RUN_ID']} "
+              f"(commit {os.environ['GITHUB_SHA'][:8]})\n\n"
+              f"### ERROR LINES\n```\n{err_block[:20000]}\n```\n\n"
+              f"### HEAD\n```\n{head[:12000]}\n```\n\n"
+              f"### TAIL\n```\n{tail[:12000]}\n```"
           )
-          payload = json.dumps({"title": f"Panther APK build failed — run {os.environ['GITHUB_RUN_ID']}", "body": body})
+          payload = json.dumps({"title": f"Panther APK build failed — run {os.environ['GITHUB_RUN_ID']}", "body": body[:64000]})
           open('/tmp/issue.json', 'w').write(payload)
           PYEOF
           gh api -X POST "repos/${{ github.repository }}/issues" --input /tmp/issue.json > /tmp/issue_resp.json

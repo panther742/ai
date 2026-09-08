@@ -8,7 +8,7 @@ on:
   workflow_dispatch: {}  # manual trigger
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 jobs:
@@ -83,3 +83,28 @@ jobs:
           name: panther-build-log
           path: Panther-Android/build.log
           if-no-files-found: ignore
+
+      - name: Publish GitHub Release with APK
+        if: steps.build.outputs.exit_code == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: Panther-Android
+        run: |
+          set -e
+          cp app/build/outputs/apk/debug/app-debug.apk /tmp/Panther-v1.0.apk
+          # Create (or update) the release so the APK is downloadable by anyone.
+          gh release view v1.0 --repo "${{ github.repository }}" >/dev/null 2>&1 \
+            && gh release upload v1.0 /tmp/Panther-v1.0.apk --repo "${{ github.repository }}" --clobber \
+            || gh release create v1.0 /tmp/Panther-v1.0.apk \
+                 --repo "${{ github.repository }}" \
+                 --title "Panther v1.0" \
+                 --notes "🐾 PANTHER — JARVIS-style Hinglish AI voice assistant for Android.
+
+Debug-signed APK (sideload ready):
+- Download Panther-v1.0.apk and open it on your phone.
+- Allow 'Install unknown apps' for your browser/file manager.
+- App me ⚙️ Settings → API key daalo (Gemini/Groq/OpenAI) for real AI chat.
+
+Local commands (time, jokes, math, open apps, search) work without any key." \
+                 --generate-notes
+          echo "Release URL: https://github.com/${{ github.repository }}/releases/tag/v1.0"

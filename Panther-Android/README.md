@@ -10,6 +10,18 @@ aur usse ek real, native Android app (Kotlin + Jetpack Compose) banaya gaya hai.
 > Android Studio me kholo, API key daalo, aur **Run** dabao — app aapke phone /
 > emulator pe chalegi. Neeche poora guide hai.
 
+## 📲 Ready-to-install APK (bina build kiye)
+
+Sabse nayi debug APK yahan se direct phone pe download karo:
+
+👉 **https://github.com/panther742/ai/releases/latest**
+
+*(Panther-v1.2.apk ya usse nayi — "Releases" me sabse upar wali)*
+
+Install: APK tap karo → "Install unknown apps" allow karo → Install. Agar
+pichli baar crash hua ho to nayi build me app ke andar error screen dikhega —
+screenshot bhejo, main fix kar dunga.
+
 ---
 
 ## ✨ Kya-kya kar sakta hai Panther (v1)

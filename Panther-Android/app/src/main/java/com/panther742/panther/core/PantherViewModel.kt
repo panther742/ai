@@ -83,15 +83,6 @@ class PantherViewModel(app: Application) : AndroidViewModel(app) {
         return nb
     }
 
-    /** If the previous run crashed, surface the recorded error to the user. */
-    private fun showPreviousCrash() {
-        val app = getApplication<Application>()
-        val report = (app as? com.panther742.panther.PantherApplication)?.readCrashReport() ?: return
-        val firstLines = report.lineSequence().take(6).joinToString("\n")
-        val msg = "⚠️ Pichli baar app crash hua tha. Error: $firstLines"
-        addPantherBubble(msg)
-    }
-
     private fun markBackendState() {
         val s = _settings.value
         val usable = s.apiKey.isNotBlank() || s.provider == PantherSettings.PROVIDER_CUSTOM
@@ -99,20 +90,21 @@ class PantherViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun start() {
-        ensureVoice()
-        markBackendState()
-        showPreviousCrash()
-        if (!welcomeShown) {
-            welcomeShown = true
-            viewModelScope.launch {
-                delay(650)
-                val line = listOf(
-                    "Namaste ${_settings.value.userName}! Main hoon Panther, aapka personal AI assistant. Mic dabao aur bolo, ya neeche likho — main sun raha hoon.",
-                    "Hello Boss! Panther ready hai. Bolo kya karein aaj?",
-                    "Namaste Boss! Subah ka time hai — chai peelo aur mujhse baat karo. ☕ Main yahan hoon!",
-                ).random()
-                addPantherBubble(line)
-                voice.speak(line)
+        runCatching {
+            ensureVoice()
+            markBackendState()
+            if (!welcomeShown) {
+                welcomeShown = true
+                viewModelScope.launch {
+                    delay(650)
+                    val line = listOf(
+                        "Namaste ${_settings.value.userName}! Main hoon Panther, aapka personal AI assistant. Mic dabao aur bolo, ya neeche likho — main sun raha hoon.",
+                        "Hello Boss! Panther ready hai. Bolo kya karein aaj?",
+                        "Namaste Boss! Subah ka time hai — chai peelo aur mujhse baat karo. ☕ Main yahan hoon!",
+                    ).random()
+                    addPantherBubble(line)
+                    voice.speak(line)
+                }
             }
         }
     }

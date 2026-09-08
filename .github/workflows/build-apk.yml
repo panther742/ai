@@ -5,7 +5,7 @@ on:
     branches: [arena/01a081bf-ai]
     paths:
       - '.github/workflows/build-apk.yml'
-  workflow_dispatch: {}  # manual trigger
+  workflow_dispatch: {}  # manual trigger for v1.2
 
 permissions:
   contents: write
@@ -91,10 +91,10 @@ jobs:
         working-directory: Panther-Android
         run: |
           set -e
-          cp app/build/outputs/apk/debug/app-debug.apk /tmp/Panther-v1.1.apk
-          if gh release view v1.1 --repo "${{ github.repository }}" >/dev/null 2>&1; then
-            gh release upload v1.1 /tmp/Panther-v1.1.apk --repo "${{ github.repository }}" --clobber
+          cp app/build/outputs/apk/debug/app-debug.apk /tmp/Panther-v1.2.apk
+          if gh release view v1.2 --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release upload v1.2 /tmp/Panther-v1.2.apk --repo "${{ github.repository }}" --clobber
           else
-            gh release create v1.1 /tmp/Panther-v1.1.apk --repo "${{ github.repository }}" --title "Panther v1.1" --notes "Panther v1.1 debug APK - crash fix - JARVIS-style Hinglish AI voice assistant for Android (sideload ready). Setup guide in Panther-Android/README.md."
+            gh release create v1.2 /tmp/Panther-v1.2.apk --repo "${{ github.repository }}" --title "Panther v1.2" --notes "Panther v1.2 debug APK - startup crash fixes + on-screen error report - JARVIS-style Hinglish AI voice assistant for Android (sideload ready). Setup guide in Panther-Android/README.md."
           fi
-          echo "Release URL: https://github.com/${{ github.repository }}/releases/tag/v1.1"
+          echo "Release URL: https://github.com/${{ github.repository }}/releases/tag/v1.2"

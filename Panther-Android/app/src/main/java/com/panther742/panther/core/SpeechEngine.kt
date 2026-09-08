@@ -36,11 +36,16 @@ class SpeechEngine(
             onStatus("Speech recognition available nahi hai is device pe.")
             return
         }
-        val rec = SpeechRecognizer.createSpeechRecognizer(context)
-        recognizer = rec
-        rec.setRecognitionListener(this)
         started = true
-        rec.startListening(buildIntent(currentLang))
+        runCatching {
+            val rec = SpeechRecognizer.createSpeechRecognizer(context)
+            recognizer = rec
+            rec.setRecognitionListener(this)
+            rec.startListening(buildIntent(currentLang))
+        }.onFailure {
+            started = false
+            onError("Speech engine start nahi hua. Dobara try karo?")
+        }
     }
 
     fun stop() {

@@ -534,16 +534,13 @@ private fun BubbleRow(bubble: Bubble) {
                 bottomStart = 18.dp,
                 bottomEnd = 18.dp,
             )
+            val bubbleBg: Brush =
+                if (bubble.fromUser) Brush.linearGradient(listOf(Color(0xFF16D3EA), Violet))
+                else SolidColor(SlateGlass)
             Box(
                 Modifier
                     .clip(shape)
-                    .background(
-                        if (bubble.fromUser) {
-                            Brush.linearGradient(listOf(Color(0xFF16D3EA), Violet))
-                        } else {
-                            Brush.solidColor(SlateGlass)
-                        },
-                    )
+                    .background(bubbleBg)
                     .padding(horizontal = 14.dp, vertical = 10.dp),
             ) {
                 Text(

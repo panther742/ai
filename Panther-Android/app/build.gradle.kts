@@ -12,13 +12,29 @@ android {
         applicationId = "com.panther742.panther"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.3"
+    }
+
+    signingConfigs {
+        create("panther") {
+            storeFile = rootProject.file("keystore/panther-release.p12")
+            storePassword = "panther742"
+            keyAlias = "panther"
+            keyPassword = "panther742"
+            storeType = "PKCS12"
+        }
     }
 
     buildTypes {
+        debug {
+            // Same fixed signature on every build (also in CI) so the user can
+            // update over previous installs without "App not installed".
+            signingConfig = signingConfigs.getByName("panther")
+        }
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("panther")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

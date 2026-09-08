@@ -44,6 +44,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -84,7 +85,6 @@ import com.panther742.panther.ui.theme.Cyan
 import com.panther742.panther.ui.theme.Fuchsia
 import com.panther742.panther.ui.theme.GoodGreen
 import com.panther742.panther.ui.theme.Ink
-import com.panther742.panther.ui.theme.PantherIcons
 import com.panther742.panther.ui.theme.SlateGlass
 import com.panther742.panther.ui.theme.SlateLine
 import com.panther742.panther.ui.theme.TextHi
@@ -307,7 +307,7 @@ private fun Header(ui: PantherUiState, providerLabel: String, onOpenSettings: ()
                 color = TextHi,
             )
             Text(
-                "Aapka Personal AI Assistant",
+                "Aapka Personal AI Assistant  •  v1.3",
                 color = TextMid,
                 fontSize = 11.sp,
                 maxLines = 1,
@@ -325,11 +325,10 @@ private fun Header(ui: PantherUiState, providerLabel: String, onOpenSettings: ()
                     fontSize = 14.sp,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        PantherIcons.Battery,
-                        contentDescription = "Battery",
+                    BatteryGlyph(
+                        level = battery,
                         tint = if (battery <= 15) WarmAmber else GoodGreen,
-                        modifier = Modifier.size(14.dp),
+                        modifier = Modifier.size(15.dp),
                     )
                     Spacer(Modifier.width(3.dp))
                     Text("$battery%", color = TextMid, fontSize = 11.sp)
@@ -738,7 +737,7 @@ private fun ComposerBar(
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
-                            PantherIcons.Send,
+                            Icons.Default.Send,
                             contentDescription = "Send",
                             tint = Ink,
                             modifier = Modifier.size(20.dp),
@@ -771,12 +770,7 @@ private fun MicStartButton(onStart: () -> Unit) {
             .background(Brush.linearGradient(listOf(Cyan, Violet)))
             .clickable(onClick = onStart),
     ) {
-        Icon(
-            PantherIcons.Mic,
-            contentDescription = "Start listening",
-            tint = Ink,
-            modifier = Modifier.size(22.dp),
-        )
+        MicGlyph(tint = Ink, modifier = Modifier.size(22.dp))
     }
 }
 
@@ -810,12 +804,7 @@ private fun MicStopButton(onStop: () -> Unit) {
                 .background(GoodGreen),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(
-                PantherIcons.Mic,
-                contentDescription = "Stop listening",
-                tint = Ink,
-                modifier = Modifier.size(22.dp),
-            )
+            MicGlyph(tint = Ink, modifier = Modifier.size(22.dp))
         }
     }
 }
@@ -823,6 +812,79 @@ private fun MicStopButton(onStop: () -> Unit) {
 // ================================================================
 // Time/battery helpers
 // ================================================================
+/** Simple microphone drawn with Canvas primitives (no vector parsing involved). */
+@Composable
+private fun MicGlyph(tint: Color, modifier: Modifier = Modifier.size(22.dp)) {
+    Canvas(modifier) {
+        val c = center
+        val s = size.minDimension
+        val stroke = s * 0.085f
+        val w = s * 0.42f
+        val h = s * 0.56f
+        // mic capsule
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(c.x - w / 2f, c.y - h / 2f - s * 0.02f),
+            size = Size(w, h),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(w / 2f, w / 2f),
+        )
+        // u-shaped holder under the capsule (bottom half of an ellipse ring)
+        drawArc(
+            color = tint,
+            startAngle = 0f,
+            sweepAngle = 180f,
+            useCenter = false,
+            topLeft = Offset(c.x - w * 0.8f, c.y + h * 0.22f),
+            size = Size(w * 1.6f, w * 0.85f),
+            style = Stroke(width = stroke),
+        )
+        // stand
+        drawLine(
+            color = tint,
+            start = Offset(c.x, c.y + h * 0.22f + w * 0.42f),
+            end = Offset(c.x, c.y + h * 0.22f + w * 0.75f),
+            strokeWidth = stroke,
+        )
+    }
+}
+
+/** Simple battery outline with a fill proportional to [level]. */
+@Composable
+private fun BatteryGlyph(level: Int, tint: Color, modifier: Modifier = Modifier.size(15.dp)) {
+    Canvas(modifier) {
+        val c = center
+        val s = size.minDimension
+        val w = s * 1.05f
+        val h = s * 0.5f
+        val stroke = s * 0.09f
+        val frac = (level.coerceIn(0, 100)) / 100f
+        // fill first (behind outline)
+        if (frac > 0.02f) {
+            drawRoundRect(
+                color = tint,
+                topLeft = Offset(c.x - w / 2f + stroke, c.y - h / 2f + stroke),
+                size = Size((w - stroke * 2f) * frac, h - stroke * 2f),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(stroke, stroke),
+            )
+        }
+        // body outline
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(c.x - w / 2f, c.y - h / 2f),
+            size = Size(w, h),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(stroke, stroke),
+            style = Stroke(width = stroke),
+        )
+        // terminal nub
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(c.x + w / 2f, c.y - h * 0.18f),
+            size = Size(s * 0.16f, h * 0.36f),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(stroke / 2f, stroke / 2f),
+        )
+    }
+}
+
 @Composable
 private fun rememberTime(): String {
     var now by remember { mutableStateOf(timeFmt.format(Date())) }
